@@ -33,8 +33,7 @@ interface AuthContextType {
   user: any | null;
   isLoading: boolean;
   isNewUser: boolean;
-  login: (phone: string) => Promise<{ success: boolean; error?: string; devOtp?: string }>;
-  verifyOtp: (phone: string, otp: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithPhone: (phone: string) => Promise<{ success: boolean; error?: string }>;
   updateUser: (data: any) => void;
   logout: () => Promise<void>;
 }
@@ -66,13 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function login(phone: string) {
-    const result = await authApi.sendOtp(phone);
-    return result as any;
-  }
-
-  async function verifyOtp(phone: string, otp: string) {
-    const result = await authApi.verifyOtp(phone, otp);
+  async function loginWithPhone(phone: string) {
+    const result = await authApi.phoneLogin(phone);
 
     if (result.success && result.data) {
       const { token, user: userData, isNewUser: isNew } = result.data;
@@ -106,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isNewUser, login, verifyOtp, updateUser, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isNewUser, loginWithPhone, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

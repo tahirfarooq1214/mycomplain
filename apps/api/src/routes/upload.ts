@@ -1,12 +1,32 @@
 import { Router, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { prisma } from '../index';
 
 const router = Router();
 
-// ── MULTER CONFIG ────────────────────────────────────────────
+// ── CLOUDINARY CONFIG ────────────────────────────────────────
+
+const useCloudinary = !!(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (useCloudinary) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  console.log('☁️  Cloudinary configured for file uploads');
+} else {
+  console.log('📁 Using local disk storage for uploads (set CLOUDINARY_* env vars for cloud)');
+}
+
+// ── MULTER CONFIG (local fallback) ───────────────────────────
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
@@ -19,8 +39,11 @@ const storage = multer.diskStorage({
   },
 });
 
+// For Cloudinary: store in memory buffer
+const memoryStorage = multer.memoryStorage();
+
 const upload = multer({
-  storage,
+  storage: useCloudinary ? memoryStorage : storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
   fileFilter: (_req, file, cb) => {
     const allowed = /jpeg|jpg|png|gif|webp|mp4|mov/;
@@ -33,6 +56,28 @@ const upload = multer({
     }
   },
 });
+
+// ── HELPER: Upload to Cloudinary ─────────────────────────────
+
+function uploadToCloudinary(file: Express.Multer.File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'mycomplain/complaints',
+        resource_type: 'auto',
+        transformation: [
+          { quality: 'auto', fetch_format: 'auto' },
+          { width: 1200, crop: 'limit' },
+        ],
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result!.secure_url);
+      }
+    );
+    uploadStream.end(file.buffer);
+  });
+}
 
 // ── UPLOAD MEDIA FOR A COMPLAINT ─────────────────────────────
 
@@ -60,15 +105,23 @@ router.post(
         return;
       }
 
-      // Save media records
+      // Upload files and save media records
       const mediaRecords = await Promise.all(
-        files.map((file) => {
+        files.map(async (file) => {
           const isVideo = /mp4|mov/.test(file.mimetype);
+
+          let url: string;
+          if (useCloudinary) {
+            url = await uploadToCloudinary(file);
+          } else {
+            url = `/uploads/${file.filename}`;
+          }
+
           return prisma.complaintMedia.create({
             data: {
               complaintId,
               mediaType: isVideo ? 'video' : 'image',
-              url: `/uploads/${file.filename}`,
+              url,
             },
           });
         })

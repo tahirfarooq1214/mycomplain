@@ -201,13 +201,13 @@ export default function ComplaintDetailPage() {
                 {c.media.map((m: any) => (
                   <a
                     key={m.id}
-                    href={`http://localhost:3000${m.url}`}
+                    href={`${m.url.startsWith('http') ? m.url : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api').replace('/api', '') + m.url}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-brand-400 hover:shadow-lg transition-all"
                   >
                     <img
-                      src={`http://localhost:3000${m.url}`}
+                      src={`${m.url.startsWith('http') ? m.url : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api').replace('/api', '') + m.url}`}
                       alt="Complaint media"
                       className="w-full h-full object-cover"
                     />

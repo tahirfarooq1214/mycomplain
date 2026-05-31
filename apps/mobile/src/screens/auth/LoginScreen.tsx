@@ -7,10 +7,8 @@ import { Colors } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 
 export function LoginScreen() {
-  const { login, verifyOtp } = useAuth();
+  const { loginWithPhone } = useAuth();
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [loading, setLoading] = useState(false);
 
   // Animations
@@ -32,7 +30,7 @@ export function LoginScreen() {
     ]).start();
   }, []);
 
-  async function handleSendOtp() {
+  async function handleLogin() {
     if (!phone || phone.length < 10) {
       Alert.alert('Error', 'Please enter a valid phone number');
       return;
@@ -40,37 +38,11 @@ export function LoginScreen() {
 
     setLoading(true);
     const fullPhone = phone.startsWith('+92') ? phone : `+92${phone}`;
-    const result = await login(fullPhone);
-
-    if (result.success) {
-      if (result.devOtp) {
-        const verifyResult = await verifyOtp(fullPhone, result.devOtp);
-        setLoading(false);
-        if (!verifyResult.success) {
-          Alert.alert('Error', verifyResult.error || 'Auto-verify failed');
-        }
-        return;
-      }
-      setLoading(false);
-      setStep('otp');
-    } else {
-      setLoading(false);
-      Alert.alert('Error', result.error || 'Failed to send OTP');
-    }
-  }
-
-  async function handleVerifyOtp() {
-    if (otp.length !== 4) {
-      Alert.alert('Error', 'Please enter the 4-digit OTP');
-      return;
-    }
-
-    setLoading(true);
-    const result = await verifyOtp(phone.startsWith('+92') ? phone : `+92${phone}`, otp);
+    const result = await loginWithPhone(fullPhone);
     setLoading(false);
 
     if (!result.success) {
-      Alert.alert('Error', result.error || 'Invalid OTP');
+      Alert.alert('Error', result.error || 'Failed to log in');
     }
   }
 
@@ -92,71 +64,36 @@ export function LoginScreen() {
       {/* Form */}
       <Animated.View style={[styles.form, { opacity: formOpacity, transform: [{ translateY: formSlide }] }]}>
         <View style={styles.formCard}>
-          {step === 'phone' ? (
-            <>
-              <Text style={styles.formTitle}>Welcome</Text>
-              <Text style={styles.formSubtitle}>Enter your phone number to get started</Text>
+          <Text style={styles.formTitle}>Welcome</Text>
+          <Text style={styles.formSubtitle}>Enter your phone number to get started</Text>
 
-              <View style={styles.phoneRow}>
-                <View style={styles.countryCode}>
-                  <Text style={styles.flag}>🇵🇰</Text>
-                  <Text style={styles.countryCodeText}>+92</Text>
-                </View>
-                <TextInput
-                  style={styles.phoneInput}
-                  placeholder="3XX XXXXXXX"
-                  placeholderTextColor={Colors.textMuted}
-                  value={phone}
-                  onChangeText={setPhone}
-                  keyboardType="phone-pad"
-                  maxLength={11}
-                />
-              </View>
+          <View style={styles.phoneRow}>
+            <View style={styles.countryCode}>
+              <Text style={styles.flag}>🇵🇰</Text>
+              <Text style={styles.countryCodeText}>+92</Text>
+            </View>
+            <TextInput
+              style={styles.phoneInput}
+              placeholder="3XX XXXXXXX"
+              placeholderTextColor={Colors.textMuted}
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+              maxLength={11}
+            />
+          </View>
 
-              <TouchableOpacity
-                style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={handleSendOtp}
-                disabled={loading}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.buttonText}>
-                  {loading ? 'Connecting...' : 'Continue'}
-                </Text>
-                {!loading && <Text style={styles.buttonArrow}>  &rarr;</Text>}
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={styles.formTitle}>Verify OTP</Text>
-              <Text style={styles.formSubtitle}>Enter the code sent to +92{phone}</Text>
-
-              <TextInput
-                style={styles.otpInput}
-                placeholder="0  0  0  0"
-                placeholderTextColor={Colors.textMuted}
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="number-pad"
-                maxLength={4}
-                textContentType="oneTimeCode"
-              />
-
-              <TouchableOpacity
-                style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={handleVerifyOtp}
-                disabled={loading}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.buttonText}>
-                  {loading ? 'Verifying...' : 'Verify & Login'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.changeBtn} onPress={() => { setStep('phone'); setOtp(''); }}>
-                <Text style={styles.changeText}>Change number</Text>
-              </TouchableOpacity>
-            </>
-          )}
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? 'Connecting...' : 'Continue'}
+            </Text>
+            {!loading && <Text style={styles.buttonArrow}>  &rarr;</Text>}
+          </TouchableOpacity>
         </View>
       </Animated.View>
 
@@ -212,7 +149,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
     padding: 28,
-    // boxShadow for web
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -250,20 +186,6 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
 
-  otpInput: {
-    backgroundColor: Colors.background,
-    borderRadius: 14,
-    padding: 16,
-    fontSize: 32,
-    fontWeight: '800',
-    letterSpacing: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    color: Colors.textPrimary,
-  },
-
   button: {
     backgroundColor: Colors.primary,
     borderRadius: 14,
@@ -275,9 +197,6 @@ const styles = StyleSheet.create({
   buttonDisabled: { opacity: 0.6 },
   buttonText: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   buttonArrow: { color: Colors.white, fontSize: 17, fontWeight: '800' },
-
-  changeBtn: { alignItems: 'center', marginTop: 16 },
-  changeText: { color: Colors.primaryLight, fontSize: 14, fontWeight: '600' },
 
   footer: {
     textAlign: 'center',

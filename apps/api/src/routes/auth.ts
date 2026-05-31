@@ -111,6 +111,57 @@ router.post('/verify-otp', async (req: Request, res: Response) => {
   }
 });
 
+// ── DIRECT PHONE LOGIN (no OTP — consumer enters phone, gets in) ──
+
+router.post('/phone-login', async (req: Request, res: Response) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone || phone.length < 10) {
+      res.status(400).json({ success: false, error: 'Valid phone number is required' });
+      return;
+    }
+
+    // Find or create user
+    let user = await prisma.user.findUnique({ where: { phone } });
+    const isNewUser = !user;
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: { phone, role: 'CONSUMER' },
+      });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET || 'dev-secret',
+      { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+    );
+
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          phone: user.phone,
+          email: user.email,
+          city: user.city,
+          area: user.area,
+          address: user.address,
+          profilePhotoUrl: user.profilePhotoUrl,
+          role: user.role,
+        },
+        isNewUser,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Login failed' });
+  }
+});
+
 // ── CMS LOGIN (for ops agents + service providers) ────────────
 
 router.post('/cms-login', async (req: Request, res: Response) => {

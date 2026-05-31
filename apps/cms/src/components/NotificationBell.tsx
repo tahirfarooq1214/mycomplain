@@ -21,7 +21,8 @@ export function NotificationBell() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
-    const socket = io('http://localhost:3000', { transports: ['websocket', 'polling'] });
+    const socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api').replace('/api', '');
+    const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
     socketRef.current = socket;
 
     socket.on('connect', () => {

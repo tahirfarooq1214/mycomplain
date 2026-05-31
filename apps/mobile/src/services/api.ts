@@ -1,7 +1,16 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 const getApiBase = () => {
+  // Use environment variable if set (for production builds)
+  const envUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (envUrl) return envUrl;
+
   if (Platform.OS === 'web') {
+    // In production web, use relative or configured URL
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      return `${window.location.protocol}//${window.location.hostname}:3000/api`;
+    }
     return 'http://localhost:3000/api';
   }
   // For native dev, use your local IP
@@ -50,6 +59,13 @@ async function request<T>(
 // ── AUTH ────────────────────────────────────────────────────────
 
 export const auth = {
+  phoneLogin: (phone: string) =>
+    request<{ token: string; user: any; isNewUser: boolean }>('/auth/phone-login', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    }),
+
+  // Legacy OTP methods (kept for fallback)
   sendOtp: (phone: string) =>
     request('/auth/send-otp', { method: 'POST', body: JSON.stringify({ phone }) }),
 

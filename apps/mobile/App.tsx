@@ -9,7 +9,15 @@ import { ProfileSetupScreen } from './src/screens/auth/ProfileSetupScreen';
 import { ToastProvider, showToast } from './src/components/Toast';
 import { io as socketIO } from 'socket.io-client';
 
-const SOCKET_URL = Platform.OS === 'web' ? 'http://localhost:3000' : 'http://192.168.1.100:3000';
+import Constants from 'expo-constants';
+
+const getSocketUrl = () => {
+  const envUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (envUrl) return envUrl.replace('/api', '');
+  if (Platform.OS === 'web') return 'http://localhost:3000';
+  return 'http://192.168.1.100:3000';
+};
+const SOCKET_URL = getSocketUrl();
 
 const linking = {
   prefixes: [Platform.OS === 'web' ? window.location.origin : 'mycomplain://'],
