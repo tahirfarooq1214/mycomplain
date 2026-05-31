@@ -10,6 +10,8 @@ import { NewComplaintScreen } from '../screens/complaints/NewComplaintScreen';
 import { ComplaintDetailScreen } from '../screens/complaints/ComplaintDetailScreen';
 import { ServicesScreen } from '../screens/services/ServicesScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
+import { HelpScreen } from '../screens/profile/HelpScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -122,6 +124,8 @@ export function MainNavigator() {
       <Stack.Screen name="Main" component={HomeTabs} options={{ headerShown: false }} />
       <Stack.Screen name="ComplaintDetail" component={ComplaintDetailScreen} options={{ title: 'Complaint Details' }} />
       <Stack.Screen name="NewComplaint" component={NewComplaintScreen} options={{ title: 'New Service Request' }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Edit Profile' }} />
+      <Stack.Screen name="HelpSupport" component={HelpScreen} options={{ title: 'Help & Support' }} />
     </Stack.Navigator>
   );
 }

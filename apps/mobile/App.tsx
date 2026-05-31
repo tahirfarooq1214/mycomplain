@@ -26,6 +26,8 @@ const linking = {
       },
       ComplaintDetail: 'complaint/:id',
       NewComplaint: 'new-complaint',
+      EditProfile: 'edit-profile',
+      HelpSupport: 'help',
     },
   },
 };

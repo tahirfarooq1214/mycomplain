@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Image } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 import { complaints as complaintsApi, getMediaUrl } from '../../services/api';
 import { StatusTimeline } from '../../components/StatusTimeline';
@@ -10,9 +10,11 @@ export function ComplaintDetailScreen() {
   const [complaint, setComplaint] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadComplaint();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadComplaint();
+    }, [route.params.id])
+  );
 
   async function loadComplaint() {
     setLoading(true);
@@ -41,7 +43,14 @@ export function ComplaintDetailScreen() {
   }
 
   if (loading || !complaint) {
-    return <View style={styles.loading}><Text>Loading...</Text></View>;
+    return (
+      <View style={styles.loading}>
+        <View style={styles.loadingPulse}>
+          <Text style={styles.loadingIcon}>📋</Text>
+          <Text style={styles.loadingText}>Loading complaint...</Text>
+        </View>
+      </View>
+    );
   }
 
   const isBrand = complaint.serviceType === 'BRAND_WARRANTY';
@@ -168,7 +177,10 @@ export function ComplaintDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 16, paddingBottom: 40 },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background },
+  loadingPulse: { alignItems: 'center' },
+  loadingIcon: { fontSize: 40, marginBottom: 12, opacity: 0.5 },
+  loadingText: { fontSize: 15, color: Colors.textMuted, fontWeight: '500' },
   headerCard: { backgroundColor: Colors.white, borderRadius: 16, padding: 20, marginBottom: 16 },
   typeBadge: { alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginBottom: 12 },
   typeBadgeText: { color: Colors.white, fontSize: 12, fontWeight: '700' },

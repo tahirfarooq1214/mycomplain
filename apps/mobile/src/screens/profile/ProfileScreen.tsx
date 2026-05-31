@@ -1,30 +1,19 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Linking } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 
-const MENU_SECTIONS = [
-  {
-    title: 'Settings',
-    items: [
-      { icon: '✏️', label: 'Edit Profile', value: '' },
-      { icon: '🔔', label: 'Notifications', value: '' },
-      { icon: '🌐', label: 'Language', value: 'English' },
-    ],
-  },
-  {
-    title: 'Support',
-    items: [
-      { icon: '❓', label: 'Help & Support', value: '' },
-      { icon: '⭐', label: 'Rate MyComplain', value: '' },
-      { icon: '📄', label: 'Terms & Privacy', value: '' },
-      { icon: 'ℹ️', label: 'About', value: 'v1.0.0' },
-    ],
-  },
-];
+interface MenuItem {
+  icon: string;
+  label: string;
+  value: string;
+  action?: () => void;
+}
 
 export function ProfileScreen() {
   const { user, logout } = useAuth();
+  const navigation = useNavigation<any>();
 
   function handleLogout() {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -33,12 +22,36 @@ export function ProfileScreen() {
     ]);
   }
 
+  const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
+    {
+      title: 'Settings',
+      items: [
+        { icon: '✏️', label: 'Edit Profile', value: '', action: () => navigation.navigate('EditProfile') },
+        { icon: '🔔', label: 'Notifications', value: 'Enabled', action: () => Alert.alert('Notifications', 'Push notifications are enabled. You\'ll receive real-time updates on your complaints.') },
+        { icon: '🌐', label: 'Language', value: 'English', action: () => Alert.alert('Language', 'Only English is available in this version. Urdu support coming soon!') },
+      ],
+    },
+    {
+      title: 'Support',
+      items: [
+        { icon: '❓', label: 'Help & Support', value: '', action: () => navigation.navigate('HelpSupport') },
+        { icon: '⭐', label: 'Rate MyComplain', value: '', action: () => Alert.alert('Rate Us', 'Thanks for using MyComplain! Rating will be available once the app is on the Play Store.') },
+        { icon: '📄', label: 'Terms & Privacy', value: '', action: () => Linking.openURL('https://qistwalay.com/privacy') },
+        { icon: 'ℹ️', label: 'About', value: 'v1.0.0' },
+      ],
+    },
+  ];
+
   const initials = (user?.fullName || '?')[0].toUpperCase();
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       {/* Profile Header */}
-      <View style={styles.profileCard}>
+      <TouchableOpacity
+        style={styles.profileCard}
+        onPress={() => navigation.navigate('EditProfile')}
+        activeOpacity={0.8}
+      >
         <View style={styles.avatarRing}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initials}</Text>
@@ -53,7 +66,10 @@ export function ProfileScreen() {
             <Text style={styles.location}>{user.city}{user.area ? `, ${user.area}` : ''}</Text>
           </View>
         )}
-      </View>
+        <View style={styles.editHint}>
+          <Text style={styles.editHintText}>Tap to edit profile</Text>
+        </View>
+      </TouchableOpacity>
 
       {/* Menu Sections */}
       {MENU_SECTIONS.map((section) => (
@@ -65,6 +81,7 @@ export function ProfileScreen() {
                 key={item.label}
                 style={[styles.menuItem, i < section.items.length - 1 && styles.menuItemBorder]}
                 activeOpacity={0.6}
+                onPress={item.action}
               >
                 <View style={styles.menuIconBg}>
                   <Text style={styles.menuIcon}>{item.icon}</Text>
@@ -129,6 +146,14 @@ const styles = StyleSheet.create({
   locationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 4 },
   locationIcon: { fontSize: 14 },
   location: { fontSize: 13, color: Colors.textMuted, fontWeight: '500' },
+  editHint: {
+    marginTop: 12,
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  editHintText: { fontSize: 12, color: Colors.primaryLight, fontWeight: '600' },
 
   section: { marginBottom: 20 },
   sectionTitle: {

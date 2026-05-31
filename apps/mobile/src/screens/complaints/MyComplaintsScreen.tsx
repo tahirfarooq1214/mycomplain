@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 import { complaints as complaintsApi } from '../../services/api';
 import { ComplaintCard } from '../../components/ComplaintCard';
@@ -12,9 +12,15 @@ export function MyComplaintsScreen() {
   const navigation = useNavigation<any>();
   const [data, setData] = useState<any[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { load(); }, []);
+  // Reload data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [])
+  );
 
   async function load() {
     setLoading(true);
@@ -24,8 +30,22 @@ export function MyComplaintsScreen() {
   }
 
   const filtered = data.filter((c) => {
-    if (filter === 'active') return !['CLOSED', 'CANCELLED', 'RESOLVED', 'REPAIR_COMPLETE'].includes(c.status);
-    if (filter === 'resolved') return ['RESOLVED', 'REPAIR_COMPLETE', 'CLOSED'].includes(c.status);
+    // Status filter
+    if (filter === 'active' && ['CLOSED', 'CANCELLED', 'RESOLVED', 'REPAIR_COMPLETE'].includes(c.status)) return false;
+    if (filter === 'resolved' && !['RESOLVED', 'REPAIR_COMPLETE', 'CLOSED'].includes(c.status)) return false;
+
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const match =
+        (c.complaintNumber || '').toLowerCase().includes(q) ||
+        (c.brand?.name || '').toLowerCase().includes(q) ||
+        (c.category?.name || '').toLowerCase().includes(q) ||
+        (c.description || '').toLowerCase().includes(q) ||
+        (c.status || '').toLowerCase().replace(/_/g, ' ').includes(q);
+      if (!match) return false;
+    }
+
     return true;
   });
 
@@ -37,6 +57,25 @@ export function MyComplaintsScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Search Bar */}
+      <View style={styles.searchBar}>
+        <Text style={styles.searchIcon}>🔍</Text>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by #, brand, product..."
+          placeholderTextColor={Colors.textMuted}
+          value={search}
+          onChangeText={setSearch}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {search.length > 0 && (
+          <TouchableOpacity onPress={() => setSearch('')} style={styles.clearBtn}>
+            <Text style={styles.clearText}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       {/* Tab bar */}
       <View style={styles.tabBar}>
         {(['all', 'active', 'resolved'] as Filter[]).map((f) => {
@@ -76,11 +115,19 @@ export function MyComplaintsScreen() {
         }
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <EmptyState
-            icon="📋"
-            title="No complaints yet"
-            subtitle="Your complaints will appear here once submitted"
-          />
+          search.trim() ? (
+            <EmptyState
+              icon="🔍"
+              title="No results found"
+              subtitle={`No complaints matching "${search}"`}
+            />
+          ) : (
+            <EmptyState
+              icon="📋"
+              title="No complaints yet"
+              subtitle="Your complaints will appear here once submitted"
+            />
+          )
         }
       />
     </View>
@@ -89,6 +136,32 @@ export function MyComplaintsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 4,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+  },
+  searchIcon: { fontSize: 16, marginRight: 8 },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: Colors.textPrimary,
+  },
+  clearBtn: {
+    width: 24, height: 24, borderRadius: 12,
+    backgroundColor: Colors.border,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  clearText: { fontSize: 12, color: Colors.textMuted, fontWeight: '700' },
 
   tabBar: {
     flexDirection: 'row',
