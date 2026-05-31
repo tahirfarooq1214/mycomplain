@@ -1,0 +1,377 @@
+// ============================================================
+// MYCOMPLAIN — DATABASE SCHEMA
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── USERS ────────────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(uuid())
+  fullName        String?   @map("full_name")
+  phone           String    @unique
+  email           String?
+  city            String?
+  area            String?
+  address         String?
+  profilePhotoUrl String?   @map("profile_photo_url")
+  role            UserRole  @default(CONSUMER)
+  fcmToken        String?   @map("fcm_token")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  appliances      UserAppliance[]
+  complaints      Complaint[]
+  opsAgent        OpsAgent?
+
+  @@map("users")
+}
+
+enum UserRole {
+  CONSUMER
+  OPS_AGENT
+  OPS_SUPERVISOR
+  ADMIN
+  SERVICE_PROVIDER
+}
+
+// ── BRANDS ────────────────────────────────────────────────────
+
+model Brand {
+  id               String               @id @default(uuid())
+  name             String               @unique
+  logoUrl          String?              @map("logo_url")
+  serviceEmail     String?              @map("service_email")
+  helplineNumber   String?              @map("helpline_number")
+  whatsappNumber   String?              @map("whatsapp_number")
+  website          String?
+  integrationTier  BrandIntegrationTier @default(MANUAL) @map("integration_tier")
+  avgResponseHours Float?               @map("avg_response_hours")
+  avgRating        Float?               @map("avg_rating")
+  totalComplaints  Int                  @default(0) @map("total_complaints")
+  isActive         Boolean              @default(true) @map("is_active")
+  createdAt        DateTime             @default(now()) @map("created_at")
+
+  categories       BrandCategory[]
+  appliances       UserAppliance[]
+  complaints       Complaint[]
+
+  @@map("brands")
+}
+
+enum BrandIntegrationTier {
+  EMAIL
+  WHATSAPP
+  MANUAL
+  API
+}
+
+// ── PRODUCT CATEGORIES ────────────────────────────────────────
+
+model ProductCategory {
+  id       String  @id @default(uuid())
+  slug     String  @unique
+  name     String
+  icon     String
+  isActive Boolean @default(true) @map("is_active")
+
+  brands     BrandCategory[]
+  appliances UserAppliance[]
+  complaints Complaint[]
+
+  @@map("product_categories")
+}
+
+// ── BRAND ↔ CATEGORY MAPPING ──────────────────────────────────
+
+model BrandCategory {
+  brandId    String          @map("brand_id")
+  categoryId String          @map("category_id")
+  brand      Brand           @relation(fields: [brandId], references: [id])
+  category   ProductCategory @relation(fields: [categoryId], references: [id])
+
+  @@id([brandId, categoryId])
+  @@map("brand_categories")
+}
+
+// ── USER APPLIANCES ──────────────────────────────────────────
+
+model UserAppliance {
+  id                String          @id @default(uuid())
+  userId            String          @map("user_id")
+  brandId           String          @map("brand_id")
+  categoryId        String          @map("category_id")
+  modelNumber       String?         @map("model_number")
+  serialNumber      String?         @map("serial_number")
+  purchaseDate      DateTime?       @map("purchase_date")
+  purchaseSource    PurchaseSource? @map("purchase_source")
+  dealerName        String?         @map("dealer_name")
+  warrantyCardUrl   String?         @map("warranty_card_url")
+  warrantyExpiryDate DateTime?      @map("warranty_expiry_date")
+  createdAt         DateTime        @default(now()) @map("created_at")
+
+  user       User            @relation(fields: [userId], references: [id])
+  brand      Brand           @relation(fields: [brandId], references: [id])
+  category   ProductCategory @relation(fields: [categoryId], references: [id])
+  complaints Complaint[]
+
+  @@map("user_appliances")
+}
+
+enum PurchaseSource {
+  OFFICIAL_STORE
+  AUTHORIZED_DEALER
+  ONLINE
+  OTHER
+}
+
+// ── SERVICE PROVIDERS (Third-Party Companies/Technicians) ────
+
+model ServiceProvider {
+  id                   String                     @id @default(uuid())
+  companyName          String                     @map("company_name")
+  contactPerson        String                     @map("contact_person")
+  phone                String
+  email                String?
+  password             String                     // hashed, for CMS login
+  city                 String
+  areasServed          String[]                   @map("areas_served")
+  categoriesServed     String[]                   @map("categories_served")
+  verificationStatus   ProviderVerificationStatus @default(APPLIED) @map("verification_status")
+  verificationNotes    String?                    @map("verification_notes")
+  totalJobsCompleted   Int                        @default(0) @map("total_jobs_completed")
+  avgRating            Float?                     @map("avg_rating")
+  commissionRate       Float                      @default(15) @map("commission_rate")
+  isActive             Boolean                    @default(true) @map("is_active")
+  createdAt            DateTime                   @default(now()) @map("created_at")
+  updatedAt            DateTime                   @updatedAt @map("updated_at")
+
+  assignments          ComplaintAssignment[]
+
+  @@map("service_providers")
+}
+
+enum ProviderVerificationStatus {
+  APPLIED
+  UNDER_REVIEW
+  VERIFIED
+  SUSPENDED
+  REJECTED
+}
+
+// ── COMPLAINTS (Core Table) ──────────────────────────────────
+
+model Complaint {
+  id                    String           @id @default(uuid())
+  complaintNumber       String           @unique @map("complaint_number")
+  userId                String           @map("user_id")
+  userApplianceId       String?          @map("user_appliance_id")
+  brandId               String?          @map("brand_id")
+  categoryId            String           @map("category_id")
+
+  // Service type
+  serviceType           ServiceType      @map("service_type")
+  routingMethod         RoutingMethod?   @map("routing_method")
+
+  // Product info
+  modelNumber           String?          @map("model_number")
+  serialNumber          String?          @map("serial_number")
+
+  // Issue
+  issueType             IssueType        @map("issue_type")
+  description           String
+  preferredTime         PreferredTime?   @map("preferred_time")
+  preferredDate         DateTime?        @map("preferred_date")
+  serviceAddress        String?          @map("service_address")
+
+  // Warranty / Purchase
+  warrantyCardUrl       String?          @map("warranty_card_url")
+  purchaseDate          DateTime?        @map("purchase_date")
+  purchaseSource        PurchaseSource?  @map("purchase_source")
+  dealerName            String?          @map("dealer_name")
+
+  // Status tracking
+  status                ComplaintStatus  @default(SUBMITTED)
+  brandReferenceNumber  String?          @map("brand_reference_number")
+
+  // Third-party specific
+  diagnosisNotes        String?          @map("diagnosis_notes")
+  quotedAmount          Float?           @map("quoted_amount")
+  customerApprovedQuote Boolean?         @map("customer_approved_quote")
+  finalAmount           Float?           @map("final_amount")
+  paymentMethod         PaymentMethod?   @map("payment_method")
+  paymentStatus         PaymentStatus?   @map("payment_status")
+  commissionAmount      Float?           @map("commission_amount")
+
+  // Resolution
+  resolutionNotes       String?          @map("resolution_notes")
+  resolvedAt            DateTime?        @map("resolved_at")
+
+  // Rating
+  userRating            Int?             @map("user_rating")
+  userReview            String?          @map("user_review")
+
+  // Timestamps
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  user                  User             @relation(fields: [userId], references: [id])
+  appliance             UserAppliance?   @relation(fields: [userApplianceId], references: [id])
+  brand                 Brand?           @relation(fields: [brandId], references: [id])
+  category              ProductCategory  @relation(fields: [categoryId], references: [id])
+  timeline              ComplaintTimeline[]
+  media                 ComplaintMedia[]
+  assignments           ComplaintAssignment[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([serviceType])
+  @@index([brandId])
+  @@index([createdAt])
+  @@map("complaints")
+}
+
+enum ServiceType {
+  BRAND_WARRANTY
+  THIRD_PARTY
+}
+
+enum RoutingMethod {
+  AUTO_EMAIL
+  AUTO_WHATSAPP
+  MANUAL_CALL
+  THIRD_PARTY_PROVIDER
+}
+
+enum IssueType {
+  NOT_WORKING
+  ELECTRICAL
+  NOISE_VIBRATION
+  LEAKING
+  COOLING_ISSUE
+  HEATING_ISSUE
+  PHYSICAL_DAMAGE
+  DISPLAY_ISSUE
+  PERFORMANCE
+  OTHER
+}
+
+enum PreferredTime {
+  MORNING
+  AFTERNOON
+  EVENING
+}
+
+enum ComplaintStatus {
+  SUBMITTED
+  IN_QUEUE
+  BEING_PROCESSED
+  RECEIVED_BY_BRAND
+  REGISTERED_WITH_BRAND
+  TECHNICIAN_ASSIGNED
+  VISIT_SCHEDULED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  ESCALATED
+  CANCELLED
+  // Third-party flow
+  ASSIGNED_TO_PROVIDER
+  PROVIDER_ACKNOWLEDGED
+  DIAGNOSIS_COMPLETE
+  QUOTE_SENT
+  QUOTE_APPROVED
+  REPAIR_IN_PROGRESS
+  REPAIR_COMPLETE
+}
+
+enum PaymentMethod {
+  CASH
+  JAZZCASH
+  EASYPAISA
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  COLLECTED
+  VERIFIED
+}
+
+// ── COMPLAINT TIMELINE ──────────────────────────────────────
+
+model ComplaintTimeline {
+  id          String          @id @default(uuid())
+  complaintId String          @map("complaint_id")
+  status      ComplaintStatus
+  note        String?
+  updatedBy   String          @map("updated_by") // 'system', 'admin:name', 'provider:name', 'user'
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  complaint   Complaint       @relation(fields: [complaintId], references: [id])
+
+  @@index([complaintId])
+  @@map("complaint_timeline")
+}
+
+// ── COMPLAINT MEDIA ──────────────────────────────────────────
+
+model ComplaintMedia {
+  id          String    @id @default(uuid())
+  complaintId String    @map("complaint_id")
+  mediaType   String    @map("media_type") // 'image' | 'video'
+  url         String
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  complaint   Complaint @relation(fields: [complaintId], references: [id])
+
+  @@map("complaint_media")
+}
+
+// ── COMPLAINT ASSIGNMENTS ────────────────────────────────────
+
+model ComplaintAssignment {
+  id                    String           @id @default(uuid())
+  complaintId           String           @map("complaint_id")
+  agentId               String?          @map("agent_id")
+  providerId            String?          @map("provider_id")
+  assignedAt            DateTime         @default(now()) @map("assigned_at")
+  startedAt             DateTime?        @map("started_at")
+  completedAt           DateTime?        @map("completed_at")
+  callDurationSeconds   Int?             @map("call_duration_seconds")
+  outcome               String?          // 'registered', 'declined', 'callback', 'transferred_to_third_party'
+  brandReferenceNumber  String?          @map("brand_reference_number")
+  notes                 String?
+
+  complaint             Complaint        @relation(fields: [complaintId], references: [id])
+  agent                 OpsAgent?        @relation(fields: [agentId], references: [id])
+  provider              ServiceProvider? @relation(fields: [providerId], references: [id])
+
+  @@index([complaintId])
+  @@map("complaint_assignments")
+}
+
+// ── OPS AGENTS ──────────────────────────────────────────────
+
+model OpsAgent {
+  id               String  @id @default(uuid())
+  userId           String  @unique @map("user_id")
+  isAvailable      Boolean @default(true) @map("is_available")
+  totalCallsToday  Int     @default(0) @map("total_calls_today")
+  avgCallDuration  Float?  @map("avg_call_duration")
+  shift            String  @default("morning")
+
+  user             User    @relation(fields: [userId], references: [id])
+  assignments      ComplaintAssignment[]
+
+  @@map("ops_agents")
+}

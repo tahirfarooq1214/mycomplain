@@ -1,0 +1,24 @@
+{
+  "name": "mycomplain",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "api:dev": "npm run dev --workspace=apps/api",
+    "api:build": "npm run build --workspace=apps/api",
+    "mobile:start": "npm run start --workspace=apps/mobile",
+    "mobile:android": "npm run android --workspace=apps/mobile",
+    "mobile:ios": "npm run ios --workspace=apps/mobile",
+    "cms:dev": "npm run dev --workspace=apps/cms",
+    "cms:build": "npm run build --workspace=apps/cms",
+    "db:migrate": "npm run db:migrate --workspace=apps/api",
+    "db:seed": "npm run db:seed --workspace=apps/api",
+    "db:studio": "npm run db:studio --workspace=apps/api"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

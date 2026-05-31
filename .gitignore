@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+.expo/
+web-build/
+
+# Environment
+.env
+.env.local
+.env.production
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/prisma/migrations/
+
+# Expo
+apps/mobile/ios/
+apps/mobile/android/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
