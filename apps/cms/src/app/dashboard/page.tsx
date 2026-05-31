@@ -50,13 +50,10 @@ export default function DashboardPage() {
 
   const cards = [
     { label: 'Total Complaints', value: stats?.totalComplaints ?? 0, icon: '📋', color: 'bg-blue-50 text-blue-700', link: '/dashboard/complaints' },
-    { label: 'Active', value: stats?.activeComplaints ?? 0, icon: '🔄', color: 'bg-orange-50 text-orange-700', link: '/dashboard/complaints?filter=active' },
-    { label: 'Resolved', value: stats?.resolvedComplaints ?? 0, icon: '✅', color: 'bg-green-50 text-green-700', link: '/dashboard/complaints?filter=resolved' },
-    { label: 'Call Queue', value: stats?.pendingQueue ?? 0, icon: '📞', color: 'bg-yellow-50 text-yellow-800', link: '/dashboard/queue' },
-    { label: 'Today', value: stats?.todayComplaints ?? 0, icon: '📅', color: 'bg-purple-50 text-purple-700' },
-    { label: 'Brand Warranty', value: stats?.brandWarranty ?? 0, icon: '🏢', color: 'bg-indigo-50 text-indigo-700' },
-    { label: 'Third-Party', value: stats?.thirdParty ?? 0, icon: '🔧', color: 'bg-emerald-50 text-emerald-700' },
-    { label: 'Avg Resolution', value: stats?.avgResolutionHours ? `${stats.avgResolutionHours}h` : 'N/A', icon: '⏱', color: 'bg-pink-50 text-pink-700' },
+    { label: 'Pending', value: stats?.pending ?? 0, icon: '🔄', color: 'bg-orange-50 text-orange-700', link: '/dashboard/complaints?filter=active' },
+    { label: 'Resolved', value: stats?.resolved ?? 0, icon: '✅', color: 'bg-green-50 text-green-700', link: '/dashboard/complaints?filter=resolved' },
+    { label: 'Call Queue', value: stats?.inQueue ?? 0, icon: '📞', color: 'bg-yellow-50 text-yellow-800', link: '/dashboard/queue' },
+    { label: 'Today', value: stats?.todayCount ?? 0, icon: '📅', color: 'bg-purple-50 text-purple-700' },
   ];
 
   return (
@@ -125,7 +122,7 @@ export default function DashboardPage() {
                 <div>
                   <span className="font-mono text-sm text-gray-500">{c.complaintNumber}</span>
                   <p className="text-sm font-medium text-gray-800">
-                    {c.brand?.name} &mdash; {c.productCategory || c.category?.name}
+                    {c.brand?.name || 'N/A'} &mdash; {c.category?.name || 'N/A'}
                   </p>
                 </div>
                 <span className={`badge ${c.status === 'RESOLVED' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>

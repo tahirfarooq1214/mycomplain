@@ -436,8 +436,8 @@ export function NewComplaintScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.white },
-  content: { padding: 20, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: Colors.white, overflow: 'scroll' as any },
+  content: { padding: 20, paddingBottom: 60, flexGrow: 1 },
   stepIndicator: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
   stepDotRow: { flexDirection: 'row', alignItems: 'center' },
   stepDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: Colors.border },

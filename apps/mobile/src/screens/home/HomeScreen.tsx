@@ -142,8 +142,8 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: 20, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: Colors.background, overflow: 'scroll' as any },
+  content: { padding: 20, paddingBottom: 60, flexGrow: 1 },
 
   greetingSection: { marginBottom: 24 },
   greetingSmall: { fontSize: 15, color: Colors.textSecondary, fontWeight: '500' },

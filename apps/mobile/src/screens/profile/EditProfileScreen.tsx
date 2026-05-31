@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
@@ -46,7 +46,7 @@ export function EditProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       {/* Avatar */}
       <View style={styles.avatarSection}>
         <View style={styles.avatarRing}>
@@ -93,7 +93,7 @@ export function EditProfileScreen() {
             <Text style={styles.dropdownArrow}>{showCities ? '▲' : '▼'}</Text>
           </TouchableOpacity>
           {showCities && (
-            <View style={styles.dropdown}>
+            <ScrollView style={styles.dropdown} nestedScrollEnabled showsVerticalScrollIndicator>
               {CITIES.map((c) => (
                 <TouchableOpacity
                   key={c}
@@ -106,7 +106,7 @@ export function EditProfileScreen() {
                   </Text>
                 </TouchableOpacity>
               ))}
-            </View>
+            </ScrollView>
           )}
         </View>
 
@@ -151,8 +151,8 @@ export function EditProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: 20, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: Colors.background, overflow: 'scroll' as any },
+  content: { padding: 20, paddingBottom: 60, flexGrow: 1 },
 
   avatarSection: { alignItems: 'center', marginBottom: 24 },
   avatarRing: {

@@ -127,8 +127,8 @@ export function HelpScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: 20, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: Colors.background, overflow: 'scroll' as any },
+  content: { padding: 20, paddingBottom: 60, flexGrow: 1 },
 
   headerCard: {
     backgroundColor: Colors.primary,
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 28,
   },
   contactCard: {
-    width: '47%', backgroundColor: Colors.white,
+    flexBasis: '46%', flexGrow: 1, backgroundColor: Colors.white,
     borderRadius: 16, padding: 16,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,

@@ -175,8 +175,8 @@ export function ComplaintDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: 16, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: Colors.background, overflow: 'scroll' as any },
+  content: { padding: 16, paddingBottom: 60, flexGrow: 1 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background },
   loadingPulse: { alignItems: 'center' },
   loadingIcon: { fontSize: 40, marginBottom: 12, opacity: 0.5 },

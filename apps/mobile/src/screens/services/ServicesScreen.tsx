@@ -93,8 +93,8 @@ export function ServicesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: 20, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: Colors.background, overflow: 'scroll' as any },
+  content: { padding: 20, paddingBottom: 60, flexGrow: 1 },
   searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.white, borderRadius: 16, paddingHorizontal: 16, marginBottom: 24, borderWidth: 1.5, borderColor: Colors.border },
   searchIcon: { fontSize: 18, marginRight: 10 },
   searchInput: { flex: 1, paddingVertical: 15, fontSize: 16, color: Colors.textPrimary },

@@ -71,7 +71,7 @@ export default function ComplaintDetailPage() {
   async function handleCallOutcome() {
     setUpdating(true);
     const result = await admin.recordCallOutcome(id as string, {
-      success: callSuccess,
+      outcome: callSuccess ? 'registered' : 'declined',
       brandReferenceNumber: callRef,
       notes: callNotes,
     });
@@ -152,7 +152,7 @@ export default function ComplaintDetailPage() {
               </div>
               <div>
                 <span className="text-gray-500">Category</span>
-                <p className="font-medium">{c.productCategory || c.category?.name}</p>
+                <p className="font-medium">{c.category?.name || 'N/A'}</p>
               </div>
               <div>
                 <span className="text-gray-500">Model</span>
@@ -168,7 +168,7 @@ export default function ComplaintDetailPage() {
               </div>
               <div>
                 <span className="text-gray-500">Preferred Time</span>
-                <p className="font-medium">{c.preferredVisitTime || 'N/A'}</p>
+                <p className="font-medium">{c.preferredTime || 'N/A'}</p>
               </div>
               {c.purchaseDate && (
                 <div>
@@ -183,10 +183,10 @@ export default function ComplaintDetailPage() {
                 </div>
               )}
             </div>
-            {c.issueDescription && (
+            {c.description && (
               <div>
                 <span className="text-sm text-gray-500">Description</span>
-                <p className="text-sm mt-1 bg-gray-50 rounded-lg p-3">{c.issueDescription}</p>
+                <p className="text-sm mt-1 bg-gray-50 rounded-lg p-3">{c.description}</p>
               </div>
             )}
           </div>
@@ -230,10 +230,10 @@ export default function ComplaintDetailPage() {
                     </div>
                     <div className="pb-4">
                       <p className="text-sm font-medium text-gray-800">{entry.status}</p>
-                      {entry.notes && <p className="text-sm text-gray-500 mt-0.5">{entry.notes}</p>}
+                      {entry.note && <p className="text-sm text-gray-500 mt-0.5">{entry.note}</p>}
                       <p className="text-xs text-gray-400 mt-1">
                         {new Date(entry.createdAt).toLocaleString()}
-                        {entry.performedBy && ` by ${entry.performedBy}`}
+                        {entry.updatedBy && ` by ${entry.updatedBy}`}
                       </p>
                     </div>
                   </div>
@@ -256,12 +256,21 @@ export default function ComplaintDetailPage() {
               className="input-field mb-2"
             >
               <option value="">Select new status...</option>
-              <option value="ROUTING">Routing</option>
+              <option value="IN_QUEUE">In Queue</option>
+              <option value="BEING_PROCESSED">Being Processed</option>
+              <option value="RECEIVED_BY_BRAND">Received by Brand</option>
               <option value="REGISTERED_WITH_BRAND">Registered with Brand</option>
-              <option value="PENDING_PROVIDER_ASSIGNMENT">Pending Provider Assignment</option>
+              <option value="TECHNICIAN_ASSIGNED">Technician Assigned</option>
+              <option value="VISIT_SCHEDULED">Visit Scheduled</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="ASSIGNED_TO_PROVIDER">Assigned to Provider</option>
+              <option value="DIAGNOSIS_COMPLETE">Diagnosis Complete</option>
+              <option value="QUOTE_SENT">Quote Sent</option>
               <option value="REPAIR_IN_PROGRESS">Repair in Progress</option>
+              <option value="REPAIR_COMPLETE">Repair Complete</option>
               <option value="RESOLVED">Resolved</option>
               <option value="CLOSED">Closed</option>
+              <option value="ESCALATED">Escalated</option>
               <option value="CANCELLED">Cancelled</option>
             </select>
             <textarea
@@ -375,30 +384,30 @@ export default function ComplaintDetailPage() {
                   <span className="font-medium">{c.brand.integrationTier}</span>
                 </div>
               )}
-              {c.assignment && (
+              {c.assignments?.[0] && (
                 <>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Provider</span>
-                    <span className="font-medium">{c.assignment.provider?.companyName}</span>
+                    <span className="font-medium">{c.assignments[0].provider?.companyName || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Assigned</span>
                     <span className="text-xs text-gray-400">
-                      {new Date(c.assignment.assignedAt).toLocaleDateString()}
+                      {new Date(c.assignments[0].assignedAt).toLocaleDateString()}
                     </span>
                   </div>
                 </>
               )}
-              {c.quoteAmount && (
+              {c.quotedAmount && (
                 <div className="flex justify-between">
                   <span className="text-gray-500">Quote</span>
-                  <span className="font-medium">Rs. {c.quoteAmount}</span>
+                  <span className="font-medium">Rs. {c.quotedAmount.toLocaleString()}</span>
                 </div>
               )}
-              {c.rating && (
+              {c.userRating && (
                 <div className="flex justify-between">
                   <span className="text-gray-500">Rating</span>
-                  <span className="font-medium">{'⭐'.repeat(c.rating)}</span>
+                  <span className="font-medium">{'⭐'.repeat(c.userRating)}</span>
                 </div>
               )}
             </div>

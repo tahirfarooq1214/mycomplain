@@ -131,7 +131,7 @@ export default function ComplaintsPage() {
                     <td className="table-cell">
                       <div>
                         <p className="font-medium">{c.brand?.name || 'N/A'}</p>
-                        <p className="text-xs text-gray-400">{c.modelNumber || c.productCategory}</p>
+                        <p className="text-xs text-gray-400">{c.modelNumber || c.category?.name || ''}</p>
                       </div>
                     </td>
                     <td className="table-cell">

@@ -2,6 +2,13 @@
 
 const statusStyles: Record<string, string> = {
   SUBMITTED: 'bg-blue-100 text-blue-700',
+  IN_QUEUE: 'bg-yellow-100 text-yellow-800',
+  BEING_PROCESSED: 'bg-orange-100 text-orange-700',
+  RECEIVED_BY_BRAND: 'bg-teal-100 text-teal-700',
+  TECHNICIAN_ASSIGNED: 'bg-cyan-100 text-cyan-700',
+  VISIT_SCHEDULED: 'bg-sky-100 text-sky-700',
+  IN_PROGRESS: 'bg-orange-100 text-orange-700',
+  ASSIGNED_TO_PROVIDER: 'bg-indigo-100 text-indigo-700',
   ROUTING: 'bg-purple-100 text-purple-700',
   ROUTED_EMAIL: 'bg-indigo-100 text-indigo-700',
   ROUTED_WHATSAPP: 'bg-green-100 text-green-700',
@@ -24,6 +31,13 @@ const statusStyles: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
   SUBMITTED: 'Submitted',
+  IN_QUEUE: 'In Queue',
+  BEING_PROCESSED: 'Being Processed',
+  RECEIVED_BY_BRAND: 'Received by Brand',
+  TECHNICIAN_ASSIGNED: 'Technician Assigned',
+  VISIT_SCHEDULED: 'Visit Scheduled',
+  IN_PROGRESS: 'In Progress',
+  ASSIGNED_TO_PROVIDER: 'Assigned to Provider',
   ROUTING: 'Routing',
   ROUTED_EMAIL: 'Routed (Email)',
   ROUTED_WHATSAPP: 'Routed (WhatsApp)',

@@ -118,7 +118,7 @@ export function MainNavigator() {
         },
         headerTintColor: Colors.white,
         headerTitleStyle: { fontWeight: '800', fontSize: 18, letterSpacing: -0.3 },
-        cardStyle: { backgroundColor: Colors.background },
+        cardStyle: { flex: 1, backgroundColor: Colors.background },
       }}
     >
       <Stack.Screen name="Main" component={HomeTabs} options={{ headerShown: false }} />
