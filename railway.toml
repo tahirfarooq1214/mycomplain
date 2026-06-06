@@ -4,6 +4,4 @@ buildCommand = "cd apps/api && npx prisma generate && npx tsc"
 
 [deploy]
 startCommand = "cd apps/api && node dist/index.js"
-preDeployCommand = "cd apps/api && npx prisma db push"
-healthcheckPath = "/api/health"
-healthcheckTimeout = 30
+preDeployCommand = "cd apps/api && npx prisma db push --skip-generate"
