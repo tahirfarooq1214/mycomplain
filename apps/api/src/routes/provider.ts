@@ -50,7 +50,7 @@ router.put('/complaints/:id/status', async (req: AuthRequest, res: Response) => 
     // Verify this complaint is assigned to this provider
     const assignment = await prisma.complaintAssignment.findFirst({
       where: {
-        complaintId: req.params.id,
+        complaintId: req.params.id as string,
         providerId: req.userId,
       },
     });
@@ -81,7 +81,7 @@ router.put('/complaints/:id/status', async (req: AuthRequest, res: Response) => 
     if (status === 'REPAIR_COMPLETE') updateData.resolvedAt = new Date();
 
     const complaint = await prisma.complaint.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: updateData,
     });
 

@@ -43,7 +43,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
 router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     await prisma.userAppliance.deleteMany({
-      where: { id: req.params.id, userId: req.userId },
+      where: { id: req.params.id as string, userId: req.userId },
     });
     res.json({ success: true, message: 'Appliance removed' });
   } catch (error) {

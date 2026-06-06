@@ -74,7 +74,7 @@ router.get('/complaints', async (req: AuthRequest, res: Response) => {
 router.get('/complaints/:id', async (req: AuthRequest, res: Response) => {
   try {
     const complaint = await prisma.complaint.findUnique({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       include: {
         user: { select: { id: true, fullName: true, phone: true, email: true, city: true, area: true, address: true } },
         brand: true,
@@ -136,7 +136,7 @@ router.put('/complaints/:id/status', async (req: AuthRequest, res: Response) => 
     if (['RESOLVED', 'REPAIR_COMPLETE'].includes(status)) updateData.resolvedAt = new Date();
 
     const complaint = await prisma.complaint.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: updateData,
       include: { user: true, brand: true },
     });
@@ -172,7 +172,7 @@ router.post('/complaints/:id/assign-provider', async (req: AuthRequest, res: Res
     const { providerId, notes } = req.body;
 
     const complaint = await prisma.complaint.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: {
         status: 'ASSIGNED_TO_PROVIDER',
         routingMethod: 'THIRD_PARTY_PROVIDER',
@@ -230,7 +230,7 @@ router.post('/complaints/:id/call-outcome', async (req: AuthRequest, res: Respon
     }
 
     const complaint = await prisma.complaint.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: updateData,
     });
 
@@ -291,7 +291,7 @@ router.put('/providers/:id/verify', async (req: AuthRequest, res: Response) => {
   try {
     const { verificationStatus, verificationNotes } = req.body;
     const provider = await prisma.serviceProvider.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: { verificationStatus, verificationNotes },
     });
     res.json({ success: true, data: provider });
@@ -314,7 +314,7 @@ router.post('/brands', requireRole('ADMIN'), async (req: AuthRequest, res: Respo
 router.put('/brands/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const brand = await prisma.brand.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: req.body,
     });
     res.json({ success: true, data: brand });

@@ -87,7 +87,7 @@ router.post(
   upload.array('files', 5),
   async (req: AuthRequest, res: Response) => {
     try {
-      const complaintId = req.params.id;
+      const complaintId = req.params.id as string;
       const files = req.files as Express.Multer.File[];
 
       if (!files || files.length === 0) {
@@ -97,7 +97,7 @@ router.post(
 
       // Verify complaint belongs to user
       const complaint = await prisma.complaint.findUnique({
-        where: { id: complaintId },
+        where: { id: complaintId as string },
       });
 
       if (!complaint || complaint.userId !== req.userId) {
@@ -140,7 +140,7 @@ router.post(
 router.get('/complaint/:id/media', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const media = await prisma.complaintMedia.findMany({
-      where: { complaintId: req.params.id },
+      where: { complaintId: req.params.id as string },
       orderBy: { createdAt: 'asc' },
     });
     res.json({ success: true, data: media });

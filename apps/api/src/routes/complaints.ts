@@ -140,7 +140,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const complaint = await prisma.complaint.findUnique({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       include: {
         brand: true,
         category: true,
@@ -174,7 +174,7 @@ router.post('/:id/rate', authenticate, async (req: AuthRequest, res: Response) =
     const { rating, review } = req.body;
 
     const complaint = await prisma.complaint.findUnique({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
     });
 
     if (!complaint || complaint.userId !== req.userId) {
@@ -183,7 +183,7 @@ router.post('/:id/rate', authenticate, async (req: AuthRequest, res: Response) =
     }
 
     const updated = await prisma.complaint.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: { userRating: rating, userReview: review },
     });
 
@@ -198,7 +198,7 @@ router.post('/:id/rate', authenticate, async (req: AuthRequest, res: Response) =
 router.post('/:id/escalate', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const complaint = await prisma.complaint.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: { status: 'ESCALATED' },
     });
 
@@ -227,7 +227,7 @@ router.post('/:id/approve-quote', authenticate, async (req: AuthRequest, res: Re
     const { approved } = req.body;
 
     const complaint = await prisma.complaint.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: {
         customerApprovedQuote: approved,
         status: approved ? 'QUOTE_APPROVED' : 'CANCELLED',

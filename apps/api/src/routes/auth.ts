@@ -85,7 +85,7 @@ router.post('/verify-otp', async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET || 'dev-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '30d') as any }
     );
 
     res.json({
@@ -136,7 +136,7 @@ router.post('/phone-login', async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET || 'dev-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '30d') as any }
     );
 
     res.json({

@@ -28,7 +28,7 @@ router.get('/', async (_req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const brand = await prisma.brand.findUnique({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       include: {
         categories: {
           include: { category: true },
@@ -55,7 +55,7 @@ router.get('/search/:query', async (req: Request, res: Response) => {
       where: {
         isActive: true,
         name: {
-          contains: req.params.query,
+          contains: req.params.query as string,
           mode: 'insensitive',
         },
       },
