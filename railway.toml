@@ -3,7 +3,9 @@ builder = "nixpacks"
 
 [build.env]
 NIXPACKS_INSTALL_CMD = "npm install"
-NIXPACKS_BUILD_CMD = "npx prisma db push --schema=apps/api/prisma/schema.prisma && npm run build --workspace=apps/api"
+NIXPACKS_BUILD_CMD = "cd apps/api && npx prisma generate && npx prisma db push && npx tsc"
 
 [deploy]
-startCommand = "npm run start --workspace=apps/api"
+startCommand = "cd apps/api && node dist/index.js"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30

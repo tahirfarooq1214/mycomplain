@@ -14,7 +14,6 @@
     "db:generate": "prisma generate"
   },
   "dependencies": {
-    "@mycomplain/shared": "*",
     "@prisma/client": "^6.9.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.10.0",
