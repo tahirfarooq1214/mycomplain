@@ -92,13 +92,17 @@ io.on('connection', (socket) => {
 
 // ── START SERVER ──────────────────────────────────────────────
 
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
+const HOST = '0.0.0.0';
 
-httpServer.listen(PORT, () => {
+console.log(`[startup] Attempting to listen on ${HOST}:${PORT}...`);
+console.log(`[startup] NODE_ENV=${process.env.NODE_ENV}, DATABASE_URL=${process.env.DATABASE_URL ? 'SET' : 'NOT SET'}`);
+
+httpServer.listen(PORT, HOST, () => {
   console.log(`
   ╔═══════════════════════════════════════╗
   ║     MyComplain API Server v1.0.0      ║
-  ║     Running on port ${PORT}              ║
+  ║     Running on ${HOST}:${PORT}            ║
   ║     Environment: ${process.env.NODE_ENV || 'development'}       ║
   ╚═══════════════════════════════════════╝
   `);
