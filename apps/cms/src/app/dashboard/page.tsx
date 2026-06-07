@@ -6,13 +6,10 @@ import { admin } from '@/services/api';
 
 interface DashboardStats {
   totalComplaints: number;
-  activeComplaints: number;
-  resolvedComplaints: number;
-  pendingQueue: number;
-  todayComplaints: number;
-  brandWarranty: number;
-  thirdParty: number;
-  avgResolutionHours: number;
+  pending: number;
+  inQueue: number;
+  resolved: number;
+  todayCount: number;
 }
 
 export default function DashboardPage() {
@@ -85,7 +82,7 @@ export default function DashboardPage() {
         <Link href="/dashboard/queue" className="stat-card border-l-4 border-l-yellow-500 hover:border-l-yellow-600">
           <h3 className="font-semibold text-gray-800 mb-1">Process Call Queue</h3>
           <p className="text-sm text-gray-500">
-            {stats?.pendingQueue || 0} complaints waiting for brand calls
+            {stats?.inQueue || 0} complaints waiting for brand calls
           </p>
         </Link>
         <Link href="/dashboard/complaints?filter=escalated" className="stat-card border-l-4 border-l-red-500 hover:border-l-red-600">
