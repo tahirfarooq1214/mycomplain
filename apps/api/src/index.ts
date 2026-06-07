@@ -33,22 +33,18 @@ export { io };
 
 // ── MIDDLEWARE ────────────────────────────────────────────────
 
-app.use(cors({ origin: '*' }));
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((s) => s.trim())
+  : '*';
+app.use(cors({ origin: corsOrigins as any, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-
-// Request logging for debugging
-app.use((req, _res, next) => {
-  console.log(`[req] ${req.method} ${req.url}`);
-  next();
-});
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // ── ROUTES ────────────────────────────────────────────────────
 
-// Root route
 app.get('/', (_req, res) => {
   res.json({ status: 'ok', app: 'MyComplain API' });
 });

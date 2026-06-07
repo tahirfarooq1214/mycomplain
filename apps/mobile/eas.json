@@ -13,7 +13,7 @@
         "buildType": "apk"
       },
       "env": {
-        "API_URL": "https://your-api.railway.app/api"
+        "API_URL": "https://mycomplain-production.up.railway.app/api"
       }
     },
     "production": {
@@ -21,7 +21,7 @@
         "buildType": "apk"
       },
       "env": {
-        "API_URL": "https://your-api.railway.app/api"
+        "API_URL": "https://mycomplain-production.up.railway.app/api"
       }
     }
   },
