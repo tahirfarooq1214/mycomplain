@@ -9,20 +9,24 @@
     "splash": {
       "backgroundColor": "#1E40AF"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mycomplain.app"
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1E40AF"
       },
       "package": "com.mycomplain.app",
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -40,8 +44,9 @@
     "extra": {
       "apiUrl": "https://mycomplain-production.up.railway.app/api",
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "a0eb204f-92c8-4531-84fb-3163caa187cb"
       }
-    }
+    },
+    "owner": "tahirfarooqqq"
   }
 }
